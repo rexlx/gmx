@@ -39,6 +39,9 @@ func VisitorsToHTMLTable(vals []Visitor) string {
 	</tr>`
 	rows := make([]byte, 0)
 	for _, v := range vals {
+		if v.Saying == "" {
+			v.Saying = "..."
+		}
 		rows = append(rows, []byte(
 			fmt.Sprintf(
 				row,
@@ -60,9 +63,8 @@ func addMinimalStyling(bs BasicStyle) string {
 	  form{display:flex;flex-direction:column;max-width:400px;margin:0 auto;}
 	  label{margin-bottom:0.5rem;}input{padding:0.5rem;margin-bottom:1rem;border-radius:0.25rem;border:1px solid #ccc;}
 	  table{border-collapse:collapse;}
-	  th,td{padding:0.5rem;white-space:nowrap;}
+	  th,td{padding:0.5rem;}
 	  button{padding:0.5rem 1rem;background-color:%v;color:%v;border:none;border-radius:0.25rem;cursor:pointer;}
-	  button:hover{background-color:#444;}
 	</style>`
 	return fmt.Sprintf(styleString, bs.BodyBG, bs.BodyText, bs.H1, bs.Btn, bs.BtnText)
 }
@@ -88,13 +90,19 @@ var splashPage = `<!DOCTYPE html>
   <label for="email">Email:</label>
   <input type="email" name="email" id="email">
 
-  <label for="email">Saying:</label>
+  <label for="saying">Saying:</label>
   <input type="text" name="saying" id="saying">
 
   <button type="submit">Submit</button>
 	</div>
 	</form>
 	<div hx-trigger="every 2s" hx-get="/visitors" hx-target="#guests" hx-swap="innerHTML"></div>
+	<div>
+		<form>
+			<input type="file" name="file" id="file">
+  			<button hx-post="/upload" hx-encoding="multipart/formdata" >upload</button>
+		</form>
+	</div>
 	%v
 	<script>
   </script>

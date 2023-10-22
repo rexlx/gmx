@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -51,25 +54,25 @@ func NewApplication(bs BasicStyle) *Applcation {
 	app.Details.start()
 
 	app.Server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(time.Now(), r.Method, r.URL.Path)
+		// fmt.Println(time.Now(), r.Method, r.URL.Path)
 		fmt.Fprintf(w, fmt.Sprintf(splashPage, addMinimalStyling(app.BasicStyle)))
 	})
 
 	app.Server.HandleFunc("/runtime", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(time.Now(), r.Method, r.URL.Path)
+		// fmt.Println(time.Now(), r.Method, r.URL.Path)
 		out := fmt.Sprintf("<small>uptime: %v</small>", app.Uptime)
 		fmt.Fprintf(w, out)
 	})
 
 	app.Server.HandleFunc("/visitors", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(time.Now(), r.Method, r.URL.Path)
+		// fmt.Println(time.Now(), r.Method, r.URL.Path)
 		visitors := app.GetVisitors()
 		tbl := VisitorsToHTMLTable(visitors)
 		fmt.Fprintf(w, tbl)
 	})
 
 	app.Server.HandleFunc("/submit", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(time.Now(), r.Method, r.URL.Path)
+		// fmt.Println(time.Now(), r.Method, r.URL.Path)
 		name := r.FormValue("name")
 		email := r.FormValue("email")
 		saying := r.FormValue("saying")
@@ -89,6 +92,35 @@ func NewApplication(bs BasicStyle) *Applcation {
 			<small>(%s)</small>
 			<hr>
 		`, name, email)
+	})
+
+	app.Server.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
+		var maxUploadSize int64 = 5 * (1024 * 1024) // 5 mb
+		r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+		// r.Header.Add("Content-Type", "multipart/form-data")
+		if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+			fmt.Fprintf(w, "file too large. max size: %v, %v", maxUploadSize, err)
+			return
+		}
+		file, fh, err := r.FormFile("file")
+		if err != nil {
+			fmt.Fprintf(w, "error reading file: %v", err)
+			return
+		}
+		defer file.Close()
+		fmt.Printf("uploaded file: %+v\n", file)
+		dst, err := os.Create(filepath.Join("/Volumes/_rxlx/", fh.Filename))
+		if err != nil {
+			fmt.Fprintf(w, "error creating file: %v", err)
+			return
+		}
+		defer dst.Close()
+		_, err = io.Copy(dst, file)
+		if err != nil {
+			fmt.Fprintf(w, "error copying file: %v", err)
+			return
+		}
+		fmt.Fprintf(w, "file uploaded successfully: %s", fh.Filename)
 	})
 	return &app
 }
