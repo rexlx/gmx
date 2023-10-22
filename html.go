@@ -60,10 +60,9 @@ func addMinimalStyling(bs BasicStyle) string {
 	  form{display:flex;flex-direction:column;max-width:400px;margin:0 auto;}
 	  label{margin-bottom:0.5rem;}input{padding:0.5rem;margin-bottom:1rem;border-radius:0.25rem;border:1px solid #ccc;}
 	  table{border-collapse:collapse;}
-	  th,td{padding:0.5rem;}
+	  th,td{padding:0.5rem;white-space:nowrap;}
 	  button{padding:0.5rem 1rem;background-color:%v;color:%v;border:none;border-radius:0.25rem;cursor:pointer;}
 	  button:hover{background-color:#444;}
-	  .target{margin-top:2rem;overflow-y:scroll;}
 	</style>`
 	return fmt.Sprintf(styleString, bs.BodyBG, bs.BodyText, bs.H1, bs.Btn, bs.BtnText)
 }
@@ -80,7 +79,6 @@ var splashPage = `<!DOCTYPE html>
   <h1>thanks for visiting!</h1>
   <div id="runtime" hx-trigger="every 2s" hx-get="/runtime">runtime stats</div>
   <div class="target" id="target"></div>
-  <button hx-get="/visitors" hx-target="#guests" hx-swap="innerHTML">see guests</button>
   <div id="guests"></div>
   <div id="content">
   <form hx-post="/submit" hx-target="#target" hx-swap="innerHTML">

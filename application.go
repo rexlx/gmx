@@ -83,10 +83,9 @@ func NewApplication(bs BasicStyle) *Applcation {
 		go app.AddVisitor(v)
 
 		fmt.Fprintf(w, `
-			<h1>thanks for your submission!</h1>
-
-			<p>name: %s</p>
-			<p>email: %s</p>
+			<h1>thanks for your submission %s!</h1>
+			<small>(%s)</small>
+			<hr>
 		`, name, email)
 	})
 	return &app
