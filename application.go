@@ -9,12 +9,13 @@ import (
 
 type Applcation struct {
 	BasicStyle
-	Uptime  time.Duration
-	Details *RuntimeDetails
-	Server  *http.ServeMux
-	Mux     sync.RWMutex
-	Visitos []Visitor
-	Count   map[string]int
+	Uptime     time.Duration
+	TableCache []Visitor
+	Details    *RuntimeDetails
+	Server     *http.ServeMux
+	Mux        sync.RWMutex
+	Visitors   []Visitor
+	Count      map[string]int
 }
 
 type BasicStyle struct {
@@ -42,7 +43,8 @@ func NewApplication(bs BasicStyle) *Applcation {
 	var app Applcation
 	app.BasicStyle = bs
 	app.Count = make(map[string]int)
-	app.Visitos = make([]Visitor, 0)
+	app.Visitors = make([]Visitor, 0)
+	app.TableCache = make([]Visitor, 0)
 	app.Server = http.NewServeMux()
 	app.Mux = sync.RWMutex{}
 	app.Details = &RuntimeDetails{}
@@ -93,7 +95,7 @@ func NewApplication(bs BasicStyle) *Applcation {
 
 func (a *Applcation) AddVisitor(v Visitor) {
 	a.Mux.Lock()
-	a.Visitos = append(a.Visitos, v)
+	a.Visitors = append(a.Visitors, v)
 	a.Count[v.Email]++
 	a.Mux.Unlock()
 }
@@ -104,10 +106,18 @@ func (a *Applcation) updateUptime() {
 	a.Uptime = time.Since(a.Details.startTime)
 }
 
+func (a *Applcation) updateTableCache(n int) {
+	a.Mux.Lock()
+	defer a.Mux.Unlock()
+	// the table cache is the 100 most recent visitors
+	if len(a.Visitors) < n {
+		n = len(a.Visitors)
+	}
+	a.TableCache = a.Visitors[len(a.Visitors)-n:]
+}
+
 func (a *Applcation) GetVisitors() []Visitor {
-	a.Mux.RLock()
-	defer a.Mux.RUnlock()
-	return a.Visitos
+	return a.TableCache
 }
 
 func (a *Applcation) GetCount() {

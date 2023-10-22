@@ -17,8 +17,9 @@ func main() {
 	app := NewApplication(bs)
 
 	go func() {
-		for range time.Tick(time.Second * 2) {
+		for range time.Tick(time.Second * 3) {
 			app.updateUptime()
+			app.updateTableCache(25)
 		}
 	}()
 
