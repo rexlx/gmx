@@ -100,7 +100,7 @@ var splashPage = `<!DOCTYPE html>
 	<div>
 		<form>
 			<input type="file" name="file" id="file">
-  			<button hx-post="/upload" hx-encoding="multipart/formdata" >upload</button>
+  			<button hx-post="/upload" hx-encoding="multipart/form-data">upload</button>
 		</form>
 	</div>
 	%v
