@@ -108,7 +108,7 @@ func NewApplication(bs BasicStyle) *Applcation {
 			return
 		}
 		defer file.Close()
-		fmt.Printf("uploaded file: %+v\n", file)
+		fmt.Printf("uploaded file: %v\n", fh.Filename)
 		dst, err := os.Create(filepath.Join("/Volumes/_rxlx/", fh.Filename))
 		if err != nil {
 			fmt.Fprintf(w, "error creating file: %v", err)
@@ -120,16 +120,16 @@ func NewApplication(bs BasicStyle) *Applcation {
 			fmt.Fprintf(w, "error copying file: %v", err)
 			return
 		}
-		fmt.Fprintf(w, "file uploaded successfully: %s", fh.Filename)
+		fmt.Fprintf(w, "file uploaded")
 	})
 	return &app
 }
 
 func (a *Applcation) AddVisitor(v Visitor) {
 	a.Mux.Lock()
+	defer a.Mux.Unlock()
 	a.Visitors = append(a.Visitors, v)
 	a.Count[v.Email]++
-	a.Mux.Unlock()
 }
 
 func (a *Applcation) updateUptime() {
@@ -150,23 +150,6 @@ func (a *Applcation) updateTableCache(n int) {
 
 func (a *Applcation) GetVisitors() []Visitor {
 	return a.TableCache
-}
-
-func (a *Applcation) GetCount() {
-	a.Mux.RLock()
-	defer a.Mux.RUnlock()
-	for k, v := range a.Count {
-		fmt.Printf("%v: %v\n", k, v)
-	}
-}
-
-func (rt *RuntimeDetails) String() string {
-	var t time.Time
-	if rt.startTime == t {
-		return "not started"
-	}
-	rt.updateRuntime()
-	return fmt.Sprintf("started at %v, running for %v", rt.startTime.Format(time.UnixDate), rt.runtTime)
 }
 
 func (rt *RuntimeDetails) updateRuntime() {
