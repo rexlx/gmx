@@ -83,26 +83,29 @@ var splashPage = `<!DOCTYPE html>
   <div class="target" id="target"></div>
   <div id="guests"></div>
   <div id="content">
-  <form hx-post="/submit" hx-target="#target" hx-swap="innerHTML">
-  <label for="name">Name:</label>
-  <input type="text" name="name" id="name">
+	<form hx-post="/submit" hx-target="#target" hx-swap="innerHTML">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name">
 
-  <label for="email">Email:</label>
-  <input type="email" name="email" id="email">
+		<label for="email">Email:</label>
+		<input type="email" name="email" id="email">
 
-  <label for="saying">Saying:</label>
-  <input type="text" name="saying" id="saying">
+		<label for="saying">Saying:</label>
+		<input type="text" name="saying" id="saying">
 
-  <button type="submit">Submit</button>
-	</div>
+		<button type="submit">Submit</button>
+		<input type="file" name="file" id="file">
+		<button hx-post="/upload" hx-encoding="multipart/form-data" id="uploadJob">upload</button>
+		<button onclick="htmx.trigger('#uploadJob', 'htmx.abort')">cancel</button>
 	</form>
-	<div hx-trigger="every 2s" hx-get="/visitors" hx-target="#guests" hx-swap="innerHTML"></div>
-	<div>
-		<form>
-			<input type="file" name="file" id="file">
-  			<button hx-post="/upload" hx-encoding="multipart/form-data">upload</button>
+	</div>
+	<div hx-ws="connect:ws://localhost:8080/ws">
+		<form hx-ws="send">
+			<input type="text" name="saying" id="saying">
+			<button type="submit">say</button>
 		</form>
 	</div>
+	<div hx-trigger="every 2s" hx-get="/visitors" hx-target="#guests" hx-swap="innerHTML"></div>
 	%v
 	<script>
   </script>

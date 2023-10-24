@@ -10,8 +10,14 @@ import (
 	"time"
 )
 
+// var upgrader = websocket.Upgrader{
+// 	ReadBufferSize:  1024,
+// 	WriteBufferSize: 1024,
+// }
+
 type Applcation struct {
 	BasicStyle
+	WsChan     chan WsMsg
 	Uptime     time.Duration
 	TableCache []Visitor
 	Details    *RuntimeDetails
@@ -52,6 +58,10 @@ func NewApplication(bs BasicStyle) *Applcation {
 	app.Mux = sync.RWMutex{}
 	app.Details = &RuntimeDetails{}
 	app.Details.start()
+
+	app.Server.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(&app, w, r)
+	})
 
 	app.Server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// fmt.Println(time.Now(), r.Method, r.URL.Path)
