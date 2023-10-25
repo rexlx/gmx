@@ -21,8 +21,6 @@ func VisitorsToHTMLTable(vals []Visitor) string {
 	<thead>
 		<tr>
 			<th>Time</th>
-			<th>Name</th>
-			<th>Email</th>
 			<th>RemoteAddr</th>
 			<th>Saying</th>
 		</tr>
@@ -31,8 +29,6 @@ func VisitorsToHTMLTable(vals []Visitor) string {
 		%s
 	</tbody>`
 	row := `<tr>
-		<td>%s</td>
-		<td>%s</td>
 		<td>%s</td>
 		<td>%s</td>
 		<td>%s</td>
@@ -46,8 +42,6 @@ func VisitorsToHTMLTable(vals []Visitor) string {
 			fmt.Sprintf(
 				row,
 				v.Time.Format(time.UnixDate),
-				v.Name,
-				v.Email,
 				v.RemoteAddr,
 				v.Saying))...)
 	}
@@ -81,8 +75,8 @@ var splashPage = `<!DOCTYPE html>
   <h1>thanks for visiting!</h1>
   <div id="runtime" hx-trigger="every 2s" hx-get="/runtime">runtime stats</div>
   <div class="target" id="target"></div>
-  <div id="guests"></div>
   <div id="content">
+  <div id="guests"></div>
 	<form hx-post="/submit" hx-target="#target" hx-swap="innerHTML">
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name">
@@ -105,9 +99,9 @@ var splashPage = `<!DOCTYPE html>
 			<button type="submit">say</button>
 		</form>
 	</div>
-	<div hx-trigger="every 2s" hx-get="/visitors" hx-target="#guests" hx-swap="innerHTML"></div>
 	%v
 	<script>
-  </script>
+
+    </script>
 </body>
 </html>`

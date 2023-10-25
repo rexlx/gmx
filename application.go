@@ -22,7 +22,7 @@ type Applcation struct {
 	TableCache []Visitor
 	Details    *RuntimeDetails
 	Server     *http.ServeMux
-	Mux        sync.RWMutex
+	Mux        *sync.RWMutex
 	Visitors   []Visitor
 	Count      map[string]int
 }
@@ -55,9 +55,10 @@ func NewApplication(bs BasicStyle) *Applcation {
 	app.Visitors = make([]Visitor, 0)
 	app.TableCache = make([]Visitor, 0)
 	app.Server = http.NewServeMux()
-	app.Mux = sync.RWMutex{}
+	app.Mux = &sync.RWMutex{}
 	app.Details = &RuntimeDetails{}
 	app.Details.start()
+	app.WsChan = make(chan WsMsg, 100)
 
 	app.Server.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(&app, w, r)
